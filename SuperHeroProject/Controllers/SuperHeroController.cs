@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SuperHeroProject.Data;
+using SuperHeroProject.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,31 +11,31 @@ namespace SuperHeroProject.Controllers
 {
     public class SuperHeroController : Controller
     {
-        // GET: SuperHeroController
-        public ActionResult Index()
+        private readonly ApplicationDbContext _context;
+
+        public SuperHeroController(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+
+        public IActionResult Index()
+        {
+            var superheros = _context.SuperHeroes;
+            return View(superheros);
+        }
+
+        public IActionResult Create()
         {
             return View();
         }
-
-        // GET: SuperHeroController/Details/5
-        public ActionResult Details(int id)
-        {
-            return View();
-        }
-
-        // GET: SuperHeroController/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: SuperHeroController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public IActionResult Create(SuperHero superHero)
         {
             try
             {
+                _context.SuperHeroes.Add(superHero);
+                _context.SaveChanges();
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -42,41 +44,21 @@ namespace SuperHeroProject.Controllers
             }
         }
 
-        // GET: SuperHeroController/Edit/5
-        public ActionResult Edit(int id)
+        public IActionResult Edit(int? id)
         {
-            return View();
+            var hero = _context.SuperHeroes.Where(s => s.Id == id).FirstOrDefault();
+            return View(hero);
         }
 
-        // POST: SuperHeroController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public IActionResult Edit(int id, SuperHero superHero)
         {
             try
             {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: SuperHeroController/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: SuperHeroController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
+                _context.Update(superHero);
+                _context.SaveChanges();
+                return RedirectToAction("Index");
             }
             catch
             {
