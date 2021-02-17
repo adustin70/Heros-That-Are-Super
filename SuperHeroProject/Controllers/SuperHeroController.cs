@@ -20,8 +20,8 @@ namespace SuperHeroProject.Controllers
 
         public IActionResult Index()
         {
-            var superheros = _context.SuperHeroes;
-            return View(superheros);
+            var superheroes = _context.SuperHeroes;
+            return View(superheroes);
         }
 
         public IActionResult Create()
@@ -64,6 +64,34 @@ namespace SuperHeroProject.Controllers
             {
                 return View();
             }
+        }
+
+        public IActionResult Delete(int? id)
+        {
+            var heroToDelete = _context.SuperHeroes.Where(s => s.Id == id).FirstOrDefault();
+            return View(heroToDelete);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Delete(int id, SuperHero superHero)
+        {
+            try
+            {
+                _context.Remove(superHero);
+                _context.SaveChanges();
+                return RedirectToAction(nameof(Index));
+            }
+            catch
+            {
+                return View();
+            }
+        }
+
+        public IActionResult Details(int? id)
+        {
+            var heroToDisplay = _context.SuperHeroes.Where(s => s.Id == id).FirstOrDefault();
+            return View(heroToDisplay);
         }
     }
 }
